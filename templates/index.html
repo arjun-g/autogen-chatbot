@@ -1,0 +1,109 @@
+<html>
+<head>
+    <title>Home</title>
+    <style>
+        html, body{
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+        *{
+            box-sizing: border-box;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+        body{
+            display: flex;
+            justify-content: center;
+            background-color: #f1f1f1;
+            flex-direction: column;
+        }
+        h1{
+            width: 100%;
+            padding: 8px 16px;
+            margin: 0;
+        }
+        .messages{
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            overflow-y: auto;
+            flex: 1 1 100%;
+            padding: 8px 16px;
+            gap: 12px;
+            justify-content: end;
+        }
+        .messages .user{
+            align-self: flex-end;
+            background-color: rgb(0 123 255 / 25%);
+            border-radius: 8px;
+            padding: 8px 12px;
+            max-width: 50%;
+            color: black;
+        }
+        form{
+            width: 100%;
+        }
+        .input{
+            padding: 4px 16px;
+        }
+        .input input{
+            font-size: 14px;
+            padding: 8px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <h1>Chat</h1>
+    <div class="messages">
+
+    </div>
+    <div class="input">
+        <form>
+            <input type="text" placeholder="Enter your message">
+        </form>
+    </div>
+
+    <script>
+        const form = document.querySelector('form');
+        const input = form.querySelector('input');
+        const messagesEle = document.querySelector('.messages');
+
+        const messages = []
+
+        function renderMessages(){
+            const html = messages.map(message => {
+                return `<div class="${message.role}">${message.message}</div>`;
+            }).join('');
+            messagesEle.innerHTML = html;
+        }
+        renderMessages();
+
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const message = input.value;
+            input.value = '';
+            messages.push({
+                "role": "user",
+                message
+            });
+            renderMessages();
+            fetch("/chat", {
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({message}),
+                method: "POST"
+            }).then(response => response.json()).then(data => {
+                messages.push({
+                    "role": "bot",
+                    message: data.content
+                });
+                renderMessages();
+            });
+            
+        });
+    </script>
+
+</body>
+</html>
